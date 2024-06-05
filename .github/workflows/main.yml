@@ -19,9 +19,6 @@ jobs:
     
     - name: Initializing Setup
       run: |
-        # Disable Windows Firewall
-        Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
-        
         # Install Chrome Remote Desktop Host
         $P = $env:TEMP + '\chromeremotedesktophost.msi'
         Invoke-WebRequest 'https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi' -OutFile $P
@@ -41,5 +38,8 @@ jobs:
 
     - name: Keep Alive
       run: |
-        # Keep the session alive
-        while (1) { Start-Sleep -Seconds 60 }
+        # Keep the session alive for 4 hours
+        $endTime = (Get-Date).AddHours(4)
+        while ((Get-Date) -lt $endTime) {
+            Start-Sleep -Seconds 60
+        }

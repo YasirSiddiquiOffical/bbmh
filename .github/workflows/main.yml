@@ -1,4 +1,4 @@
-name: Linux-CRD
+name: Windows-CRD
 
 on:
   workflow_dispatch:
@@ -9,41 +9,26 @@ on:
       pincode:
         description: 'Six digit Pin'
         required: true
-      sudo_password:
-        description: 'Sudo password'
-        required: true
 
 jobs:
-
   build:
-    name: Built Connection
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+    runs-on: windows-latest
 
+    steps:
+    - uses: actions/checkout@v2
+    
     - name: Initializing Setup
-      env:
-        SUDO_PASSWORD: ${{ github.event.inputs.sudo_password }}
       run: |
-        echo "$SUDO_PASSWORD" | sudo -S apt-get update
-        echo "$SUDO_PASSWORD" | sudo -S apt-get install -y wget gnupg
-        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | echo "$SUDO_PASSWORD" | sudo -S apt-key add -
-        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | echo "$SUDO_PASSWORD" | sudo -S tee /etc/apt/sources.list.d/google.list
-        echo "$SUDO_PASSWORD" | sudo -S apt-get update
-        echo "$SUDO_PASSWORD" | sudo -S apt-get install -y google-chrome-stable
-        # Install remaining dependencies
-        # (same as the previous script)
+        # Install necessary dependencies
+        choco install googlechrome -y
+        choco install googlechrome-remote-desktop-host -y
 
     - name: Starting CRD
-      env:
-        SUDO_PASSWORD: ${{ github.event.inputs.sudo_password }}
       run: |
-        echo "$SUDO_PASSWORD" | sudo -S /opt/google/chrome-remote-desktop/start-host --code=${{ github.event.inputs.authcode }} --pin=${{ github.event.inputs.pincode }}
+        # Start the Chrome Remote Desktop Host
+        & 'C:\Program Files (x86)\Google\Chrome\Application\chrome-remote-desktop-host.exe' --auth-code=${{ github.event.inputs.authcode }} --pin=${{ github.event.inputs.pincode }}
 
     - name: Keep Alive
       run: |
-        while true; do
-          sleep 3600
-        done
+        # Keep the session alive
+        while (1) { Start-Sleep -Seconds 60 }
